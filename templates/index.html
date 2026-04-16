@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payroll Dashboard</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <span class="navbar-brand fw-bold">Payroll Dashboard</span>
+    <button class="btn btn-outline-light" onclick="toggleDarkMode()">🌙</button>
+  </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Employees</h2>
+        <a href="/add" class="btn btn-dark">
+            <i class="bi bi-person-plus"></i> Add Employee
+        </a>
+    </div>
+
+    <!-- STATS (simple but powerful) -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+                <h6>Total Employees</h6>
+                <h3>{{ employees|length }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+                <h6>Total Salary</h6>
+                <h3>
+                    ₹{{ employees | sum(attribute=2) if employees else 0 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card shadow-lg rounded-4 p-3">
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Salary</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td class="fw-semibold">{{ emp[1] }}</td>
+                        <td>₹{{ emp[2] }}</td>
+
+                        <td class="text-center">
+
+                            <a href="/calculate/{{ emp[0] }}" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-calculator"></i>
+                            </a>
+
+                            <a href="/edit/{{ emp[0] }}" class="btn btn-outline-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <a href="/delete/{{ emp[0] }}" 
+                               class="btn btn-outline-danger btn-sm"
+                               onclick="return confirm('Delete this employee?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a href="/attendance/{{ emp[0] }}" class="btn btn-outline-dark btn-sm">
+    <i class="bi bi-check2-square"></i>
+</a>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- DARK MODE -->
+<script>
+function toggleDarkMode() {
+    document.body.classList.toggle("bg-dark");
+    document.body.classList.toggle("text-light");
+
+    document.querySelectorAll(".card").forEach(c => c.classList.toggle("bg-secondary"));
+    document.querySelectorAll(".table").forEach(t => t.classList.toggle("table-dark"));
+
+    localStorage.setItem("darkMode", document.body.classList.contains("bg-dark"));
+}
+
+window.onload = function() {
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("bg-dark", "text-light");
+
+        document.querySelectorAll(".card").forEach(c => c.classList.add("bg-secondary"));
+        document.querySelectorAll(".table").forEach(t => t.classList.add("table-dark"));
+    }
+}
+</script>
+
+</body>
+</html>
