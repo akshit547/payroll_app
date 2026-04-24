@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Profile</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI';
+            background: #f8fafc;
+            transition: 0.3s;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 230px;
+            height: 100vh;
+            position: fixed;
+            background: #111827;
+            color: white;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #d1d5db;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 8px;
+        }
+
+        .sidebar a:hover {
+            background: #374151;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 240px;
+            padding: 20px;
+        }
+
+        .card-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        /* DARK MODE */
+        body.dark {
+            background: #020617;
+            color: white;
+        }
+
+        body.dark .card-box {
+            background: #1f2937;
+        }
+
+        body.dark .table,
+        body.dark .table th,
+        body.dark .table td {
+            background: #1f2937 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <h4>💼 Payroll</h4>
+    <a href="/">Dashboard</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <!-- MOBILE MENU -->
+        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">☰</button>
+
+        <h4>{{ emp[1] }}</h4>
+
+        <button onclick="toggleDark()" class="btn btn-light">🌙</button>
+    </div>
+
+    <!-- SALARY -->
+    <div class="card-box">
+        <h5>Salary</h5>
+        <h3>₹{{ emp[2] }}</h3>
+    </div>
+
+    <!-- STATS -->
+    <div class="card-box">
+        <h5>Attendance Summary</h5>
+
+        <div class="row text-center">
+            <div class="col-6">
+                <p class="text-success fw-bold">✔ Present</p>
+                <h4>{{ present }}</h4>
+            </div>
+
+            <div class="col-6">
+                <p class="text-danger fw-bold">✖ Absent</p>
+                <h4>{{ absent }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card-box">
+        <h5>Attendance History</h5>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td>{{ r[0] }}</td>
+                        <td>
+                            {% if r[1] == "present" %}
+                                <span class="badge bg-success">Present</span>
+                            {% else %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark");
+    }
+});
+
+function toggleDark() {
+    document.body.classList.toggle("dark");
+
+    localStorage.setItem(
+        "theme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+    );
+}
+</script>
+
+</body>
+</html>

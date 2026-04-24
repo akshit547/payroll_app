@@ -1,6 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+body {
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.card {
+    border-radius: 15px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.btn {
+    border-radius: 10px;
+}
+
+.navbar {
+    border-radius: 0 0 15px 15px;
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+</style>
+<style>
+/* LIGHT (default) */
+body {
+    background: #f8fafc;
+    color: #111827;
+}
+
+/* DARK MODE */
+        body.dark {
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: #f9fafb;
+        }
+
+        body.dark .card {
+            background: #1f2937;
+            color: white;
+        }
+
+        body.dark .navbar {
+            background: #020617 !important;
+        }
+
+        /* FIX TABLE (IMPORTANT) */
+        body.dark .table,
+        body.dark .table th,
+        body.dark .table td {
+            background-color: #1f2937 !important;
+            color: white !important;
+        }
+
+        body.dark .table thead {
+            background-color: #374151 !important;
+        }
+
+        body.dark .table tbody tr:hover {
+            background-color: #2d3748 !important;
+        }
+
+        /* REMOVE bootstrap bg-light effect */
+        body.dark.bg-light {
+            background: linear-gradient(135deg, #020617, #0f172a) !important;
+        }
+
+/* Buttons */
+body.dark .btn {
+    border: none;
+}
+
+/* Topbar */
+body.dark .topbar {
+    background: #1f2937;
+}
+</style>
     <title>Edit Employee</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -66,6 +147,23 @@ window.onload = function() {
     }
 }
 </script>
+<script>
+function toggleDark() {
+    document.body.classList.toggle("dark");
 
+    if (document.body.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        localStorage.setItem("theme", "light");
+    }
+}
+
+// Load saved theme
+window.onload = function () {
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark");
+    }
+};
+</script>
 </body>
 </html>
