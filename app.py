@@ -249,139 +249,139 @@ def payslip(id):
 
     return send_file(buffer, as_attachment=True, download_name="payslip.pdf")
 
-# # ---------------- CALCULATE ----------------
-# @app.route('/calculate/<int:id>')
-# def calculate(id):
-#     if 'user_id' not in session:
-#         return redirect('/login')
+# ---------------- CALCULATE ----------------
+@app.route('/calculate/<int:id>')
+def calculate(id):
+    if 'user_id' not in session:
+        return redirect('/login')
 
-#     conn = sqlite3.connect('database.db')
-#     cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-#     cursor.execute("SELECT * FROM employees WHERE id=?", (id,))
-#     emp = cursor.fetchone()
+    cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
+    emp = cursor.fetchone()
 
-#     month = date.today().strftime("%Y-%m")
+    month = date.today().strftime("%Y-%m")
 
-#     cursor.execute("""
-#     SELECT COUNT(*) FROM attendance
-#     WHERE employee_id=? AND status='present' AND date LIKE ?
-#     """, (id, f"{month}%"))
+    cursor.execute("""
+    SELECT COUNT(*) FROM attendance
+    WHERE employee_id=%s AND status='present' AND date LIKE %s
+    """, (id, f"{month}%"))
 
-#     present_days = cursor.fetchone()[0]
+    present_days = cursor.fetchone()[0]
 
-#     conn.close()
+    conn.close()
 
-#     per_day = emp[2] / 30
-#     total = int(per_day * present_days)
+    per_day = emp[2] / 30
+    total = int(per_day * present_days)
 
-#     return render_template(
-#         'result.html',
-#         name=emp[1],
-#         total=total,
-#         days=present_days
-#     )
+    return render_template(
+        'result.html',
+        name=emp[1],
+        total=total,
+        days=present_days
+    )
 
-# #calendar
-# @app.route('/calendar/<int:id>')
-# def calendar_view(id):
-#     if 'user_id' not in session:
-#         return redirect('/login')
+#calendar
+@app.route('/calendar/<int:id>')
+def calendar_view(id):
+    if 'user_id' not in session:
+        return redirect('/login')
 
-#     conn = sqlite3.connect('database.db')
-#     cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-#     cursor.execute("SELECT * FROM employees WHERE id=?", (id,))
-#     employee = cursor.fetchone()
+    cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
+    employee = cursor.fetchone()
 
-#     cursor.execute(
-#         "SELECT date, status FROM attendance WHERE employee_id=?",
-#         (id,)
-#     )
-#     records = cursor.fetchall()
+    cursor.execute(
+        "SELECT date, status FROM attendance WHERE employee_id=%s",
+        (id,)
+    )
+    records = cursor.fetchall()
 
-#     conn.close()
+    conn.close()
 
-#     return render_template(
-#         'calendar.html',
-#         employee=employee,
-#         records=records
-#     )
-# # ---------------- Employee profile----------------
-# @app.route('/employee/<int:id>')
-# def employee_profile(id):
-#     if 'user_id' not in session:
-#         return redirect('/login')
+    return render_template(
+        'calendar.html',
+        employee=employee,
+        records=records
+    )
+# ---------------- Employee profile----------------
+@app.route('/employee/<int:id>')
+def employee_profile(id):
+    if 'user_id' not in session:
+        return redirect('/login')
 
-#     conn = sqlite3.connect('database.db')
-#     cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-#     # Employee details
-#     cursor.execute("SELECT * FROM employees WHERE id=?", (id,))
-#     emp = cursor.fetchone()
+    # Employee details
+    cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
+    emp = cursor.fetchone()
 
-#     # Monthly stats
-#     month = date.today().strftime("%Y-%m")
+    # Monthly stats
+    month = date.today().strftime("%Y-%m")
 
-#     cursor.execute("""
-#     SELECT COUNT(*) FROM attendance
-#     WHERE employee_id=? AND status='present' AND date LIKE ?
-#     """, (id, f"{month}%"))
-#     present = cursor.fetchone()[0]
+    cursor.execute("""
+    SELECT COUNT(*) FROM attendance
+    WHERE employee_id=%s AND status='present' AND date LIKE %s
+    """, (id, f"{month}%"))
+    present = cursor.fetchone()[0]
 
-#     cursor.execute("""
-#     SELECT COUNT(*) FROM attendance
-#     WHERE employee_id=? AND status='absent' AND date LIKE ?
-#     """, (id, f"{month}%"))
-#     absent = cursor.fetchone()[0]
+    cursor.execute("""
+    SELECT COUNT(*) FROM attendance
+    WHERE employee_id=%s AND status='absent' AND date LIKE %s
+    """, (id, f"{month}%"))
+    absent = cursor.fetchone()[0]
 
-#     # History
-#     cursor.execute("""
-#     SELECT date, status FROM attendance
-#     WHERE employee_id=? ORDER BY date DESC
-#     """, (id,))
-#     records = cursor.fetchall()
+    # History
+    cursor.execute("""
+    SELECT date, status FROM attendance
+    WHERE employee_id=%s ORDER BY date DESC
+    """, (id,))
+    records = cursor.fetchall()
 
-#     conn.close()
+    conn.close()
 
-#     return render_template(
-#         'employee_profile.html',
-#         emp=emp,
-#         present=present,
-#         absent=absent,
-#         records=records
-#     )
-# # -------------------- EDIT --------------------
+    return render_template(
+        'employee_profile.html',
+        emp=emp,
+        present=present,
+        absent=absent,
+        records=records
+    )
+# -------------------- EDIT --------------------
 
-# @app.route('/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_employee(id):
-#     if 'user_id' not in session:
-#         return redirect('/login')
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_employee(id):
+    if 'user_id' not in session:
+        return redirect('/login')
 
-#     if session.get('role') != "admin":
-#         return "Access denied"
+    if session.get('role') != "admin":
+        return "Access denied"
 
-#     conn = sqlite3.connect('database.db')
-#     cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         salary = int(request.form['salary'])
+    if request.method == 'POST':
+        name = request.form['name']
+        salary = int(request.form['salary'])
 
-#         cursor.execute(
-#             "UPDATE employees SET name=?, salary=? WHERE id=?",
-#             (name, salary, id)
-#         )
+        cursor.execute(
+            "UPDATE employees SET name=%s, salary=%s WHERE id=%s",
+            (name, salary, id)
+        )
 
-#         conn.commit()
-#         conn.close()
-#         return redirect('/')
+        conn.commit()
+        conn.close()
+        return redirect('/')
 
-#     cursor.execute("SELECT * FROM employees WHERE id=?", (id,))
-#     employee = cursor.fetchone()
+    cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
+    employee = cursor.fetchone()
 
-#     conn.close()
-#     return render_template('edit_employee.html', employee=employee)
+    conn.close()
+    return render_template('edit_employee.html', employee=employee)
 
 
 # ---------------- RUN ----------------
