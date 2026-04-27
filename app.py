@@ -8,10 +8,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")
+print("DB URL:", os.environ.get("DATABASE_URL"))
 
 # ---------------- DB ----------------
 def get_db_connection():
-    conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    conn = psycopg2.connect(os.environ.get("DATABASE_URL"),sslmode='require')
     return conn
 
 def init_db():
