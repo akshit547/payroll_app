@@ -120,7 +120,7 @@ def home():
     if 'user_id' not in session:
         return redirect('/login')
 
-    conn = get_db_connection
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     role = session['role']
@@ -173,7 +173,7 @@ def add_employee():
     if session['role'] != "admin":
         return "Access denied"
 
-    conn = get_db_connection
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     if request.method == 'POST':
@@ -194,7 +194,7 @@ def attendance(id):
     if session['role'] != "admin":
         return "Access denied"
 
-    conn = get_db_connection
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     today = date.today().isoformat()
@@ -219,7 +219,7 @@ def attendance(id):
 # ---------------- PDF ----------------
 @app.route('/payslip/<int:id>')
 def payslip(id):
-    conn = get_db_connection
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
