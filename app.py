@@ -99,6 +99,10 @@ def login():
         )
 
         user = cursor.fetchone()
+        conn.close() 
+        print("User from DB:", user)
+        print("Stored password:", user[2] if user else None)
+        print("Entered password:", request.form['password'])
 
         if user and check_password_hash(user[2], request.form['password']):
             session['user_id'] = user[0]
