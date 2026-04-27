@@ -21,7 +21,7 @@ def init_db():
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY ,
         username TEXT,
         password TEXT,
         role TEXT
@@ -30,7 +30,7 @@ def init_db():
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS employees (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY ,
         name TEXT,
         salary INTEGER,
         user_id INTEGER
@@ -39,7 +39,7 @@ def init_db():
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS attendance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY ,
         employee_id INTEGER,
         user_id INTEGER,
         date TEXT,
