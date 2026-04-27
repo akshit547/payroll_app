@@ -6,8 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")
+app = Flask(__name__) 
+app.secret_key = "super_secret_key_123"
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = True
 print("DB URL:", os.environ.get("DATABASE_URL"))
 
 # ---------------- DB ----------------
@@ -122,6 +124,7 @@ def logout():
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
+    print("SESSION DATA:", session)
     if 'user_id' not in session:
         return redirect('/login')
 
