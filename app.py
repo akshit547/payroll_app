@@ -6,7 +6,7 @@ import os,psycopg2
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
-app = Flask(name)
+app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")
 
 # ---------------- DB ----------------
