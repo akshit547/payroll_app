@@ -81,7 +81,13 @@ def signup():
             "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
             (request.form['username'], hashed_password, "employee")
         )
+        user_id = cursor.fetchone()[0]
 
+        # 🔥 ADD THIS
+        cursor.execute(
+            "INSERT INTO employees (user_id, name, salary) VALUES (%s, %s, %s)",
+            (user_id, request.form['username'], 0)
+        )
         conn.commit()
         conn.close()
         return redirect('/login')
