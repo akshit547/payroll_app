@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, session, send_file
-import sqlite3
 from datetime import date
 import io
 import os,psycopg2
