@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, session, send_file
 from datetime import date
 import io
 import os,psycopg2
-
+from werkzeug.security import generate_password_hash, check_password_hash
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
@@ -59,7 +59,7 @@ def create_admin():
 
     cursor.execute("SELECT * FROM users WHERE username=%s", ("admin",))
     if not cursor.fetchone():
-        cursor.execute( "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)", ("admin", "admin123", "admin") )
+        cursor.execute( "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)", ("admin", generate_password_hash("admin123"), "admin") )
         conn.commit()
 
     conn.close()
@@ -73,9 +73,11 @@ def signup():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        hashed_password = generate_password_hash(request.form['password'])
+
         cursor.execute(
             "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
-            (request.form['username'], request.form['password'], "employee")
+            (request.form['username'], hashed_password, "employee")
         )
 
         conn.commit()
@@ -92,14 +94,13 @@ def login():
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT * FROM users WHERE username=%s AND password=%s",
-            (request.form['username'], request.form['password'])
+             "SELECT * FROM users WHERE username=%s",
+             (request.form['username'],)
         )
 
         user = cursor.fetchone()
-        conn.close()
 
-        if user:
+        if user and check_password_hash(user[2], request.form['password']):
             session['user_id'] = user[0]
             session['role'] = user[3]
             return redirect('/')
