@@ -388,6 +388,17 @@ def edit_employee(id):
     conn.close()
     return render_template('edit_employee.html', employee=employee)
 
+@app.route('/reset_admin')
+def reset_admin():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM users WHERE username='admin'")
+    conn.commit()
+    conn.close()
+
+    return "Admin deleted"
+
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
