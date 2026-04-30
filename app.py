@@ -140,6 +140,7 @@ def home():
 
     role = session.get('role')
     user_id = session.get('user_id')
+    print("role :", role)
 
     # 🔥 ADMIN DASHBOARD
     if role == "admin":
