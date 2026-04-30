@@ -55,18 +55,26 @@ def init_db():
 init_db()
 
 # ---------------- ADMIN ----------------
-def create_admin():
+@app.route('/reset_admin_role')
+def reset_admin_role():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users WHERE username=%s", ("admin",))
-    if not cursor.fetchone():
-        cursor.execute( "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)", ("admin", generate_password_hash("admin123"), "admin") )
-        conn.commit()
+    # delete old admin
+    cursor.execute("DELETE FROM users WHERE username='admin'")
 
+    # create correct admin
+    from werkzeug.security import generate_password_hash
+
+    cursor.execute(
+        "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
+        ("admin", generate_password_hash("admin123"), "admin")
+    )
+
+    conn.commit()
     conn.close()
 
-create_admin()
+    return "Admin reset"
 
 # ---------------- AUTH ----------------
 @app.route('/signup', methods=['GET', 'POST'])
