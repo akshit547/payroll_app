@@ -131,25 +131,33 @@ def logout():
 @app.route('/')
 def home():
     print("SESSION DATA:", session)
+
     if 'user_id' not in session:
         return redirect('/login')
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    role = session['role']
-    user_id = session['user_id']
+    role = session.get('role')
+    user_id = session.get('user_id')
 
+    # 🔥 ADMIN DASHBOARD
     if role == "admin":
         cursor.execute("SELECT * FROM employees")
         employees = cursor.fetchall()
 
         today = date.today().isoformat()
 
-        cursor.execute("SELECT COUNT(*) FROM attendance WHERE status='present' AND date=%s", (today,))
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE status=%s AND date=%s",
+            ('present', today)
+        )
         present_today = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM attendance WHERE status='absent' AND date=%s", (today,))
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE status=%s AND date=%s",
+            ('absent', today)
+        )
         absent_today = cursor.fetchone()[0]
 
         conn.close()
@@ -162,26 +170,43 @@ def home():
             absent_today=absent_today
         )
 
+    # 🔥 EMPLOYEE DASHBOARD
     else:
-        cursor.execute("SELECT * FROM employees WHERE user_id=%s", (user_id,))
+        cursor.execute(
+            "SELECT * FROM employees WHERE user_id=%s",
+            (user_id,)
+        )
         emp = cursor.fetchone()
+
         print("EMPLOYEE DATA:", emp)
 
+        # ✅ FIX: instead of breaking, handle gracefully
         if not emp:
-            return "No data assigned"
+            conn.close()
+            return "⚠️ No employee profile found. Contact admin."
 
         month = date.today().strftime("%Y-%m")
 
-        cursor.execute("SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status='present' AND date LIKE %s", (emp[0], f"{month}%"))
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status=%s AND date LIKE %s",
+            (emp[0], 'present', f"{month}%")
+        )
         present = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status='absent' AND date LIKE %s", (emp[0], f"{month}%"))
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status=%s AND date LIKE %s",
+            (emp[0], 'absent', f"{month}%")
+        )
         absent = cursor.fetchone()[0]
 
         conn.close()
 
-        return render_template("employee_dashboard.html", employee=emp, present=present, absent=absent)
-
+        return render_template(
+            "employee_dashboard.html",
+            employee=emp,
+            present=present,
+            absent=absent
+        )
 # ---------------- ADD ----------------
 @app.route('/add', methods=['GET', 'POST'])
 def add_employee():
