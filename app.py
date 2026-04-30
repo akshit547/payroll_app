@@ -6,21 +6,200 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
-from routes.auth import auth
-from routes.employee import employee
-from routes.admin import admin
-
 app = Flask(__name__) 
 app.secret_key = "super_secret_key_123"
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 
+# ---------------- DB ----------------
+def get_db_connection():
+    conn = psycopg2.connect(os.environ.get("DATABASE_URL"),sslmode='require')
+    return conn
 
-# Register Blueprints
-app.register_blueprint(auth)
-app.register_blueprint(employee)
-app.register_blueprint(admin)
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY ,
+        username TEXT,
+        password TEXT,
+        role TEXT
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS employees (
+        id SERIAL PRIMARY KEY ,
+        name TEXT,
+        salary INTEGER,
+        user_id INTEGER
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS attendance (
+        id SERIAL PRIMARY KEY ,
+        employee_id INTEGER,
+        user_id INTEGER,
+        date TEXT,
+        status TEXT
+    )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ---------------- ADMIN ----------------
+def create_admin():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM users WHERE username=%s", ("admin",))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
+            ("admin", generate_password_hash("admin123"), "admin")
+        )
+        conn.commit()
+
+    conn.close()
+create_admin()
+
+# ---------------- AUTH ----------------
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        hashed_password = generate_password_hash(request.form['password'])
+
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (%s, %s, %s) RETURNING id",
+            (request.form['username'], hashed_password, "employee")
+        )
+        user_id = cursor.fetchone()[0]
+
+        cursor.execute(
+            "INSERT INTO employees (user_id, name, salary) VALUES (%s, %s, %s)",
+            (user_id, request.form['username'], 0)
+        )
+        conn.commit()
+        conn.close()
+        return redirect('/login')
+
+    return render_template('signup.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+             "SELECT * FROM users WHERE username=%s",
+             (request.form['username'],)
+        )
+
+        user = cursor.fetchone()
+        conn.close() 
+
+        if user and check_password_hash(user[2], request.form['password']):
+            session['user_id'] = user[0]
+            session['role'] = user[3]
+            return redirect('/')
+        else:
+            return "Invalid credentials"
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
+
+# ---------------- HOME ----------------
+@app.route('/')
+def home():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    role = session.get('role')
+    user_id = session.get('user_id')
+
+    if role == "admin":
+        cursor.execute("SELECT * FROM employees")
+        employees = cursor.fetchall()
+
+        today = date.today().isoformat()
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE status=%s AND date=%s",
+            ('present', today)
+        )
+        present_today = cursor.fetchone()[0]
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE status=%s AND date=%s",
+            ('absent', today)
+        )
+        absent_today = cursor.fetchone()[0]
+
+        conn.close()
+
+        return render_template(
+            'index.html',
+            employees=employees,
+            role=role,
+            present_today=present_today,
+            absent_today=absent_today
+        )
+
+    # EMPLOYEE DASHBOARD
+    else:
+        cursor.execute(
+            "SELECT * FROM employees WHERE user_id=%s",
+            (user_id,)
+        )
+        emp = cursor.fetchone()
+
+
+        if not emp:
+            conn.close()
+            return "⚠️ No employee profile found. Contact admin."
+
+        month = date.today().strftime("%Y-%m")
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status=%s AND date LIKE %s",
+            (emp[0], 'present', f"{month}%")
+        )
+        present = cursor.fetchone()[0]
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM attendance WHERE employee_id=%s AND status=%s AND date LIKE %s",
+            (emp[0], 'absent', f"{month}%")
+        )
+        absent = cursor.fetchone()[0]
+
+        conn.close()
+
+        return render_template(
+            "employee_dashboard.html",
+            employee=emp,
+            present=present,
+            absent=absent
+        )
 # ---------------- ADD ----------------
 @app.route('/add', methods=['GET', 'POST'])
 def add_employee():
