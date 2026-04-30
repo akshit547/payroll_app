@@ -384,6 +384,30 @@ def employee_profile(id):
         absent=absent,
         records=records
     )
+
+# ---------------- DELETE ----------------
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete_employee(id):
+    # 🔐 Only logged-in admin allowed
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    if session.get('role') != "admin":
+        return "Access denied"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 🔥 Optional: delete related attendance first (important)
+    cursor.execute("DELETE FROM attendance WHERE employee_id=%s", (id,))
+
+    # 🔥 Delete employee
+    cursor.execute("DELETE FROM employees WHERE id=%s", (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect('/')
 # -------------------- EDIT --------------------
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
