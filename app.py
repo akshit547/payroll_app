@@ -10,7 +10,6 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key_123"
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
-print("DB URL:", os.environ.get("DATABASE_URL"))
 
 # ---------------- DB ----------------
 def get_db_connection():
@@ -55,26 +54,20 @@ def init_db():
 init_db()
 
 # ---------------- ADMIN ----------------
-@app.route('/reset_admin_role')
-def reset_admin_role():
+def create_admin():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # delete old admin
-    cursor.execute("DELETE FROM users WHERE username='admin'")
+    cursor.execute("SELECT id FROM users WHERE username=%s", ("admin",))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
+            ("admin", generate_password_hash("admin123"), "admin")
+        )
+        conn.commit()
 
-    # create correct admin
-    from werkzeug.security import generate_password_hash
-
-    cursor.execute(
-        "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
-        ("admin", generate_password_hash("admin123"), "admin")
-    )
-
-    conn.commit()
     conn.close()
-
-    return "Admin reset"
+create_admin()
 
 # ---------------- AUTH ----------------
 @app.route('/signup', methods=['GET', 'POST'])
@@ -91,7 +84,6 @@ def signup():
         )
         user_id = cursor.fetchone()[0]
 
-        # 🔥 ADD THIS
         cursor.execute(
             "INSERT INTO employees (user_id, name, salary) VALUES (%s, %s, %s)",
             (user_id, request.form['username'], 0)
@@ -116,9 +108,6 @@ def login():
 
         user = cursor.fetchone()
         conn.close() 
-        print("User from DB:", user)
-        print("Stored password:", user[2] if user else None)
-        print("Entered password:", request.form['password'])
 
         if user and check_password_hash(user[2], request.form['password']):
             session['user_id'] = user[0]
@@ -138,7 +127,6 @@ def logout():
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
-    print("SESSION DATA:", session)
 
     if 'user_id' not in session:
         return redirect('/login')
@@ -148,9 +136,7 @@ def home():
 
     role = session.get('role')
     user_id = session.get('user_id')
-    print("role :", role)
 
-    # 🔥 ADMIN DASHBOARD
     if role == "admin":
         cursor.execute("SELECT * FROM employees")
         employees = cursor.fetchall()
@@ -179,7 +165,7 @@ def home():
             absent_today=absent_today
         )
 
-    # 🔥 EMPLOYEE DASHBOARD
+    # EMPLOYEE DASHBOARD
     else:
         cursor.execute(
             "SELECT * FROM employees WHERE user_id=%s",
@@ -187,9 +173,7 @@ def home():
         )
         emp = cursor.fetchone()
 
-        print("EMPLOYEE DATA:", emp)
 
-        # ✅ FIX: instead of breaking, handle gracefully
         if not emp:
             conn.close()
             return "⚠️ No employee profile found. Contact admin."
@@ -432,16 +416,6 @@ def edit_employee(id):
     conn.close()
     return render_template('edit_employee.html', employee=employee)
 
-@app.route('/reset_admin')
-def reset_admin():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM users WHERE username='admin'")
-    conn.commit()
-    conn.close()
-
-    return "Admin deleted"
 
 
 # ---------------- RUN ----------------
