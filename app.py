@@ -165,6 +165,7 @@ def home():
     else:
         cursor.execute("SELECT * FROM employees WHERE user_id=%s", (user_id,))
         emp = cursor.fetchone()
+        print("EMPLOYEE DATA:", employees)
 
         if not emp:
             return "No data assigned"
