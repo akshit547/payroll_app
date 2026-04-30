@@ -79,9 +79,8 @@ def signup():
 
         cursor.execute(
             "INSERT INTO users (username, password, role) VALUES (%s, %s, %s) RETURNING id",
-            (user_id, hashed_password, "employee")
-            )
-
+            (request.form['username'], hashed_password, "employee")
+        )
         user_id = cursor.fetchone()[0]
 
         # 🔥 ADD THIS
