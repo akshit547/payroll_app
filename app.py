@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, send_file
-from datetime import date
+from datetime import date,datetime
 import io
 import os,psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -47,11 +47,32 @@ def init_db():
         status TEXT
     )
     ''')
+        # Add columns if they don't exist (safe migration)
+    try:
+        cursor.execute("ALTER TABLE employees ADD COLUMN check_in TIME")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE employees ADD COLUMN check_out TIME")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE attendance ADD COLUMN check_in_time TIME")
+    except:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE attendance ADD COLUMN check_out_time TIME")
+    except:
+        pass
 
     conn.commit()
     conn.close()
 
 init_db()
+
 
 # ---------------- ADMIN ----------------
 def create_admin():
@@ -200,6 +221,18 @@ def home():
             present=present,
             absent=absent
         )
+    
+# ---------------- CHECK-DB----------------
+@app.route('/check_db')
+def check_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM employees LIMIT 1")
+    data = cursor.fetchone()
+
+    conn.close()
+    return str(data)
 # ---------------- ADD ----------------
 @app.route('/add', methods=['GET', 'POST'])
 def add_employee():
@@ -210,7 +243,16 @@ def add_employee():
     cursor = conn.cursor()
 
     if request.method == 'POST':
-        cursor.execute( "INSERT INTO employees (name, salary, user_id) VALUES (%s, %s, %s)", (request.form['name'], request.form['salary'], request.form['user_id']) )
+        cursor.execute("""
+INSERT INTO employees (name, salary, user_id, check_in, check_out)
+VALUES (%s, %s, %s, %s, %s)
+""", (
+    request.form['name'],
+    request.form['salary'],
+    request.form['user_id'],
+    request.form['check_in'],
+    request.form['check_out']
+))
         conn.commit()
         conn.close()
         return redirect('/')
@@ -234,7 +276,18 @@ def attendance(id):
 
     if request.method == 'POST':
         cursor.execute("DELETE FROM attendance WHERE employee_id=%s AND date=%s", (id, today))
-        cursor.execute( "INSERT INTO attendance (employee_id, user_id, date, status) VALUES (%s, %s, %s, %s)", (id, session['user_id'], today, request.form['status']) )
+        cursor.execute("""
+INSERT INTO attendance 
+(employee_id, user_id, date, status, check_in_time, check_out_time)
+VALUES (%s, %s, %s, %s, %s, %s)
+""", (
+    id,
+    session['user_id'],
+    today,
+    request.form['status'],
+    request.form['check_in_time'],
+    request.form['check_out_time']
+))
         conn.commit()
         conn.close()
         return redirect('/')
@@ -291,31 +344,81 @@ def calculate(id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # 🔥 Get employee
     cursor.execute("SELECT * FROM employees WHERE id=%s", (id,))
     emp = cursor.fetchone()
 
+    if not emp:
+        conn.close()
+        return "Employee not found"
+
+    expected_in = emp[4]
+    expected_out = emp[5]
+
+    # ❗ Check if working hours set
+    if not expected_in or not expected_out:
+        conn.close()
+        return "⚠️ Working hours not set for this employee"
+
+    # 🔥 Get current month records
     month = date.today().strftime("%Y-%m")
 
     cursor.execute("""
-    SELECT COUNT(*) FROM attendance
-    WHERE employee_id=%s AND status='present' AND date LIKE %s
+    SELECT check_in_time, check_out_time, date 
+    FROM attendance 
+    WHERE employee_id=%s AND date LIKE %s
     """, (id, f"{month}%"))
 
-    present_days = cursor.fetchone()[0]
+    records = cursor.fetchall()
+
+    if not records:
+        conn.close()
+        return "No attendance data for this month"
+
+    fmt = "%H:%M:%S"
+
+    expected_in = datetime.strptime(str(expected_in), fmt)
+    expected_out = datetime.strptime(str(expected_out), fmt)
+
+    total_penalty_minutes = 0
+
+    # 🔥 Loop through all days
+    for r in records:
+        actual_in = r[0]
+        actual_out = r[1]
+
+        # skip incomplete records
+        if not actual_in or not actual_out:
+            continue
+
+        actual_in = datetime.strptime(str(actual_in), fmt)
+        actual_out = datetime.strptime(str(actual_out), fmt)
+
+        late = max(0, (actual_in - expected_in).total_seconds() / 60)
+        early = max(0, (expected_out - actual_out).total_seconds() / 60)
+
+        total_penalty_minutes += (late + early)
+
+    # 🔥 Salary calculation
+    salary = emp[2]
+
+    working_minutes_per_day = 8 * 60
+    per_day_salary = salary / 30
+    per_minute_salary = per_day_salary / working_minutes_per_day
+
+    total_deduction = per_minute_salary * total_penalty_minutes
+    final_salary = int(salary - total_deduction)
 
     conn.close()
-
-    per_day = emp[2] / 30
-    total = int(per_day * present_days)
 
     return render_template(
         'result.html',
         name=emp[1],
-        total=total,
-        days=present_days
+        total=final_salary,
+        penalty=int(total_deduction),
+        minutes=int(total_penalty_minutes)
     )
-
-#calendar
+#------------- CALENDAR ----------------
 @app.route('/calendar/<int:id>')
 def calendar_view(id):
     if 'user_id' not in session:
@@ -425,10 +528,11 @@ def edit_employee(id):
         name = request.form['name']
         salary = int(request.form['salary'])
 
-        cursor.execute(
-            "UPDATE employees SET name=%s, salary=%s WHERE id=%s",
-            (name, salary, id)
-        )
+        cursor.execute("""
+UPDATE employees 
+SET name=%s, salary=%s, check_in=%s, check_out=%s 
+WHERE id=%s
+""", (name, salary, request.form['check_in'], request.form['check_out'], id))
 
         conn.commit()
         conn.close()
@@ -444,4 +548,4 @@ def edit_employee(id):
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000,debug=False)
+    app.run(host="0.0.0.0", port=10000,debug=True)

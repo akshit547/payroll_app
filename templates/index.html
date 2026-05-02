@@ -244,8 +244,8 @@
         </a>
 
         <form action="/delete/{{ emp[0] }}" method="POST" style="display:inline;">
-    <button class="btn btn-danger btn-sm">
-        Delete
+    <button class="btn btn-danger btn-sm" onclick="return confirm('Delete this employee?')">
+        <i class="bi bi-trash"></i>
     </button>
 </form>
 

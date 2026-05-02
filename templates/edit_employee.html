@@ -116,6 +116,11 @@ body.dark .topbar {
                 <label class="form-label">Monthly Salary</label>
                 <input type="number" name="salary" value="{{ employee[2] }}" class="form-control" required>
             </div>
+            <label>Check-in Time:</label>
+<input type="time" name="check_in" value="{{ employee[4] }}" required>
+
+<label>Check-out Time:</label>
+<input type="time" name="check_out" value="{{ employee[5] }}" required>
 
             <button type="submit" class="btn btn-dark w-100 mb-2">
                 <i class="bi bi-pencil"></i> Update Employee
