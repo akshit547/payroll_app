@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, send_file
+from flask import Flask, render_template, request, redirect, session, send_file,jsonify
 from datetime import date,datetime
 import io
 import os,psycopg2
@@ -7,7 +7,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__) 
-app.secret_key = "super_secret_key_123"
+app.secret_key = os.environ.get("SECRET_KEY", "fallback_only_for_local_dev")
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 
@@ -222,17 +222,6 @@ def home():
             absent=absent
         )
     
-# ---------------- CHECK-DB----------------
-@app.route('/check_db')
-def check_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM employees LIMIT 1")
-    data = cursor.fetchone()
-
-    conn.close()
-    return str(data)
 # ---------------- ADD ----------------
 @app.route('/add', methods=['GET', 'POST'])
 def add_employee():
