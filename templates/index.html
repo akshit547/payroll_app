@@ -243,11 +243,11 @@
             <i class="bi bi-pencil"></i>
         </a>
 
-        <a href="/delete/{{ emp[0] }}" 
-           class="btn btn-danger action-btn"
-           data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Employee">
-            <i class="bi bi-trash"></i>
-        </a>
+        <form action="/delete/{{ emp[0] }}" method="POST" style="display:inline;">
+    <button class="btn btn-danger btn-sm">
+        Delete
+    </button>
+</form>
 
     </div>
 </td>
