@@ -1,173 +1,402 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-body {
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.card {
-    border-radius: 15px;
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.btn {
-    border-radius: 10px;
-}
-
-.navbar {
-    border-radius: 0 0 15px 15px;
-}
-
-.table {
-    border-radius: 10px;
-    overflow: hidden;
-}
-</style>
-<style>
-/* LIGHT (default) */
-body {
-    background: #f8fafc;
-    color: #111827;
-}
-
-/* DARK MODE */
-        body.dark {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: #f9fafb;
-        }
-
-        body.dark .card {
-            background: #1f2937;
-            color: white;
-        }
-
-        body.dark .navbar {
-            background: #020617 !important;
-        }
-
-        /* FIX TABLE (IMPORTANT) */
-        body.dark .table,
-        body.dark .table th,
-        body.dark .table td {
-            background-color: #1f2937 !important;
-            color: white !important;
-        }
-
-        body.dark .table thead {
-            background-color: #374151 !important;
-        }
-
-        body.dark .table tbody tr:hover {
-            background-color: #2d3748 !important;
-        }
-
-        /* REMOVE bootstrap bg-light effect */
-        body.dark.bg-light {
-            background: linear-gradient(135deg, #020617, #0f172a) !important;
-        }
-/* Buttons */
-body.dark .btn {
-    border: none;
-}
-
-/* Topbar */
-body.dark .topbar {
-    background: #1f2937;
-}
-</style>
+    <meta charset="UTF-8">
     <title>Add Employee</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.08);
+            --radius: 14px;
+            --navbar-bg: #0f172a;
+        }
+
+        body.dark {
+            --bg: #060d1a;
+            --surface: #0f1c2e;
+            --surface2: #162035;
+            --border: #1e2d42;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-light: #1e3a5f;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+            --navbar-bg: #020810;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--navbar-bg) !important;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff !important;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand span { color: #3b82f6; }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+
+        .logout-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 7px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        /* PAGE LAYOUT */
+        .page-wrapper {
+            min-height: calc(100vh - 66px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 440px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .form-card-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .form-card-header .icon-wrap {
+            width: 52px;
+            height: 52px;
+            background: var(--accent-light);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 1.4rem;
+        }
+
+        .form-card-header h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .form-card-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* FORM FIELDS */
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            transition: border-color 0.2s, background 0.3s;
+            outline: none;
+            appearance: none;
+        }
+
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        .field-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* SELECT ARROW */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 0.9rem;
+        }
+
+        .select-wrapper select {
+            padding-right: 36px;
+        }
+
+        /* TIME GRID */
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .time-grid .field-group {
+            margin-bottom: 0;
+        }
+
+        /* DIVIDER */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .section-divider hr {
+            flex: 1;
+            border-color: var(--border);
+            opacity: 1;
+        }
+
+        .section-divider span {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* BUTTONS */
+        .btn-submit {
+            width: 100%;
+            padding: 11px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 11px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        @media (max-width: 480px) {
+            .form-card { padding: 28px 20px; }
+            .time-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-dark shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/">Payroll Dashboard</a>
-    <a href="/logout" class="btn btn-outline-light">Logout</a>
-  </div>
+<nav class="navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="/">Payroll<span>.</span></a>
+        <div class="nav-actions">
+            <button class="theme-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
 </nav>
 
-<!-- CENTERED FORM -->
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<!-- FORM -->
+<div class="page-wrapper">
+    <div class="form-card">
 
-    <div class="card shadow-lg rounded-4 p-4" style="width: 400px;">
-
-        <h3 class="fw-bold mb-3 text-center">Add Employee</h3>
+        <div class="form-card-header">
+            <div class="icon-wrap">👤</div>
+            <h3>Add Employee</h3>
+            <p>Fill in the details to add a new employee</p>
+        </div>
 
         <form method="POST">
 
             <!-- NAME -->
-            <div class="mb-3">
-                <label class="form-label">Employee Name</label>
-                <input type="text" name="name" class="form-control" placeholder="Enter name" required>
+            <div class="field-group">
+                <label>Employee Name</label>
+                <input type="text" name="name" placeholder="Enter full name" required>
             </div>
-            <label>Check-in Time:</label>
-<input type="time" name="check_in" required>
-
-<label>Check-out Time:</label>
-<input type="time" name="check_out" required>
 
             <!-- SALARY -->
-            <div class="mb-3">
-                <label class="form-label">Monthly Salary</label>
-                <input type="number" name="salary" class="form-control" placeholder="Enter salary" required>
+            <div class="field-group">
+                <label>Monthly Salary (₹)</label>
+                <input type="number" name="salary" placeholder="e.g. 25000" min="1" required>
             </div>
 
-            <!-- USER DROPDOWN (IMPORTANT) -->
-            <div class="mb-3">
-                <label class="form-label">Assign User (Employee Account)</label>
-                <select name="user_id" class="form-select" required>
-                    <option value="">Select User</option>
-                    {% for u in users %}
-                        <option value="{{ u[0] }}">{{ u[1] }}</option>
-                    {% endfor %}
-                </select>
+            <!-- ASSIGN USER -->
+            <div class="field-group">
+                <label>Assign User Account</label>
+                <div class="select-wrapper">
+                    <select name="user_id" required>
+                        <option value="">Select employee account</option>
+                        {% for u in users %}
+                            <option value="{{ u[0] }}">{{ u[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
 
-            <!-- BUTTONS -->
-            <button type="submit" class="btn btn-dark w-100 mb-2">
-                <i class="bi bi-save"></i> Add Employee
+            <!-- WORKING HOURS -->
+            <div class="section-divider">
+                <hr><span>Working Hours</span><hr>
+            </div>
+
+            <div class="time-grid">
+                <div class="field-group">
+                    <label>Expected Check-in</label>
+                    <input type="time" name="check_in" required>
+                </div>
+                <div class="field-group">
+                    <label>Expected Check-out</label>
+                    <input type="time" name="check_out" required>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-person-plus"></i> Add Employee
             </button>
 
-            <a href="/" class="btn btn-outline-secondary w-100">Cancel</a>
+            <a href="/" class="btn-cancel">Cancel</a>
 
         </form>
 
     </div>
-
 </div>
+
 <script>
-function toggleDark() {
-    document.body.classList.toggle("dark");
+    document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark");
+        }
+    });
 
-    if (document.body.classList.contains("dark")) {
-        localStorage.setItem("theme", "dark");
-    } else {
-        localStorage.setItem("theme", "light");
+    function toggleDark() {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     }
-}
-
-// Load saved theme
-window.onload = function () {
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-    }
-};
 </script>
+
 </body>
 </html>

@@ -1,110 +1,401 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Salary Result</title>
-
+    <meta charset="UTF-8">
+    <title>Salary Result — {{ name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #f8fafc;
-            transition: 0.3s;
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.08);
+            --radius: 14px;
+            --navbar-bg: #0f172a;
         }
 
-        .card {
-            border-radius: 15px;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .btn {
-            border-radius: 10px;
-        }
-
-        .navbar {
-            border-radius: 0 0 15px 15px;
-        }
-
-        /* DARK MODE */
         body.dark {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: #f9fafb;
+            --bg: #060d1a;
+            --surface: #0f1c2e;
+            --surface2: #162035;
+            --border: #1e2d42;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-light: #1e3a5f;
+            --success-light: #052e16;
+            --danger-light: #2d0f0f;
+            --warning-light: #2d1f05;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+            --navbar-bg: #020810;
         }
 
-        body.dark .card {
-            background: #1f2937;
-            color: white;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
         }
 
-        body.dark .navbar {
-            background: #020617 !important;
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Poppins', sans-serif;
         }
 
-        body.dark .btn {
+        /* NAVBAR */
+        .navbar {
+            background: var(--navbar-bg) !important;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff !important;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand span { color: #3b82f6; }
+
+        .theme-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* LAYOUT */
+        .main-wrapper {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 20px 60px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* FINAL SALARY HERO */
+        .salary-hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 36px 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .salary-hero .hero-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .salary-hero .salary-amount {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--success);
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .salary-hero .salary-amount.deducted {
+            color: var(--warning);
+        }
+
+        .salary-hero .month-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        /* BREAKDOWN CARD */
+        .breakdown-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .breakdown-card .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface2);
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .breakdown-row:last-child { border-bottom: none; }
+        .breakdown-row:hover { background: var(--surface2); }
+
+        .breakdown-row .row-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .breakdown-row .row-label .row-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .breakdown-row .row-value {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .breakdown-row .row-value.negative { color: var(--danger); }
+        .breakdown-row .row-value.muted    { color: var(--text-muted); }
+
+        /* GRACE PERIOD NOTE */
+        .grace-note {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* BACK BUTTON */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: #fff;
             border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s;
         }
 
-        /* Fix Bootstrap bg-light */
-        body.dark.bg-light {
-            background: linear-gradient(135deg, #020617, #0f172a) !important;
+        .btn-back:hover {
+            background: #1d4ed8;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            .salary-hero .salary-amount { font-size: 2.4rem; }
+            .main-wrapper { padding: 32px 16px 48px; }
         }
     </style>
 </head>
 
-<body class="bg-light">
+<body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container d-flex justify-content-between">
-    <a class="navbar-brand" href="/">Payroll App</a>
-
-    <button onclick="toggleDark()" class="btn btn-light" style="border-radius:50%;">
-        🌙
-    </button>
-  </div>
+<nav class="navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="/">Payroll<span>.</span></a>
+        <button class="theme-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    </div>
 </nav>
 
-<!-- MAIN -->
-<div class="container mt-5 text-center">
+<div class="main-wrapper">
 
-    <div class="card shadow p-4">
-
-        <h2>{{ name }}</h2>
-
-        <p>Total Late/Early Minutes: {{ minutes }}</p>
-<p>Total Deduction: ₹{{ penalty }}</p>
-<h3>Final Salary: ₹{{ total }}</h3>
-
-        <a href="/" class="btn btn-primary mt-3">Back to Home</a>
-
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <a href="/" class="back-link">← Back to Dashboard</a>
+        <h1>{{ name }}</h1>
+        <p>Salary calculation result for this month</p>
     </div>
+
+    <!-- FINAL SALARY HERO -->
+    <div class="salary-hero">
+        <div class="hero-label">Net Salary This Month</div>
+        <div class="salary-amount {% if penalty > 0 %}deducted{% endif %}">
+            ₹{{ total | int }}
+        </div>
+        <div class="month-badge">
+            📅 {{ now().strftime('%B %Y') if now is defined else 'Current Month' }}
+        </div>
+    </div>
+
+    <!-- BREAKDOWN -->
+    <div class="breakdown-card">
+        <div class="card-title">💰 Salary Breakdown</div>
+
+        <div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--accent-light);">📅</div>
+        Days Worked
+    </div>
+    <div class="row-value muted">{{ present_days }} / 30 days</div>
+</div>
+
+<div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--accent-light);">💼</div>
+        Gross Salary
+    </div>
+    <div class="row-value muted">₹{{ gross_salary | int }}</div>
+</div>
+
+<div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--success-light);">✅</div>
+        Earned Salary
+    </div>
+    <div class="row-value" style="color: var(--accent);">₹{{ earned_salary }}</div>
+</div>
+
+<div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--warning-light);">⏰</div>
+        Late / Early Minutes
+    </div>
+    <div class="row-value {% if minutes > 0 %}negative{% else %}muted{% endif %}">
+        {{ minutes }} min
+    </div>
+</div>
+
+<div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--danger-light);">📉</div>
+        Penalty Deduction
+    </div>
+    <div class="row-value {% if penalty > 0 %}negative{% else %}muted{% endif %}">
+        {% if penalty > 0 %}− {% endif %}₹{{ penalty }}
+    </div>
+</div>
+
+<div class="breakdown-row">
+    <div class="row-label">
+        <div class="row-icon" style="background: var(--success-light);">✅</div>
+        Final Net Salary
+    </div>
+    <div class="row-value" style="color: var(--success); font-size: 1rem;">
+        ₹{{ total }}
+    </div>
+</div>
+        </div>
+    </div>
+
+    <!-- GRACE PERIOD NOTE -->
+    <div class="grace-note">
+        ℹ️ A {{ grace_period }} minute grace period was applied before calculating deductions.
+    </div>
+
+    <!-- BACK BUTTON -->
+    <a href="/" class="btn-back">← Back to Dashboard</a>
 
 </div>
 
-<!-- DARK MODE SCRIPT -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
+    document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark");
+        }
+    });
+
+    function toggleDark() {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     }
-});
-
-function toggleDark() {
-    document.body.classList.toggle("dark");
-
-    localStorage.setItem(
-        "theme",
-        document.body.classList.contains("dark") ? "dark" : "light"
-    );
-}
 </script>
 
 </body>

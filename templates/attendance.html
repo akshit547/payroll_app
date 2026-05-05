@@ -1,168 +1,540 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Attendance</title>
-
+    <meta charset="UTF-8">
+    <title>Attendance — {{ employee[1] }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #f8fafc;
-            transition: 0.3s;
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            --radius: 14px;
+            --navbar-bg: #0f172a;
         }
 
-        .card {
-            border-radius: 15px;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .btn {
-            border-radius: 10px;
-        }
-
-        .navbar {
-            border-radius: 0 0 15px 15px;
-        }
-
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* 🔥 DARK MODE (MAIN FIX) */
         body.dark {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: #f9fafb;
+            --bg: #060d1a;
+            --surface: #0f1c2e;
+            --surface2: #162035;
+            --border: #1e2d42;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-light: #1e3a5f;
+            --success-light: #052e16;
+            --danger-light: #2d0f0f;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --navbar-bg: #020810;
         }
 
-        body.dark .card {
-            background: #1f2937;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .card-title, .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--navbar-bg) !important;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff !important;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand span { color: #3b82f6; }
+
+        .theme-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* LAYOUT */
+        .main-wrapper {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom: 32px; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* STATUS BUTTONS */
+        .status-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .status-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-btn.present {
+            background: var(--success-light);
+            border-color: #16a34a;
+            color: var(--success);
+        }
+
+        .status-btn.present:hover {
+            background: #16a34a;
             color: white;
         }
 
-        body.dark .navbar {
-            background: #020617 !important;
+        .status-btn.absent {
+            background: var(--danger-light);
+            border-color: #dc2626;
+            color: var(--danger);
         }
 
-        /* FIX TABLE (IMPORTANT) */
-        body.dark .table,
-        body.dark .table th,
-        body.dark .table td {
-            background-color: #1f2937 !important;
-            color: white !important;
+        .status-btn.absent:hover {
+            background: #dc2626;
+            color: white;
         }
 
-        body.dark .table thead {
-            background-color: #374151 !important;
+        /* TIME FIELDS */
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
-        body.dark .table tbody tr:hover {
-            background-color: #2d3748 !important;
+        .time-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
 
-        /* REMOVE bootstrap bg-light effect */
-        body.dark.bg-light {
-            background: linear-gradient(135deg, #020617, #0f172a) !important;
+        .time-field input[type="time"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, background 0.3s;
+            outline: none;
+        }
+
+        .time-field input[type="time"]:focus {
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        .time-note {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-divider hr {
+            flex: 1;
+            border-color: var(--border);
+            opacity: 1;
+        }
+
+        .form-divider span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* TABLE */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+        }
+
+        td {
+            padding: 13px 16px;
+            font-size: 0.88rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            font-family: 'Inter', sans-serif;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--surface2); }
+
+        .badge-present {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--success-light);
+            color: var(--success);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-absent {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--danger-light);
+            color: var(--danger);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid #fecaca;
+        }
+
+        body.dark .badge-present { border-color: #166534; }
+        body.dark .badge-absent  { border-color: #991b1b; }
+
+        .time-chip {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .time-grid { grid-template-columns: 1fr; }
+            .status-row { flex-direction: column; }
+            .page-header h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 
-<body class="bg-light">
+<body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container d-flex justify-content-between">
-    <a class="navbar-brand" href="/">Payroll Dashboard</a>
-
-    <!-- DARK MODE BUTTON -->
-    <button onclick="toggleDark()" class="btn btn-light" style="border-radius:50%;">
-        🌙
-    </button>
-  </div>
+<nav class="navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="/">Payroll<span>.</span></a>
+        <button class="theme-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    </div>
 </nav>
 
-<div class="container mt-5">
+<div class="main-wrapper">
 
-    <h2 class="mb-4">{{ employee[1] }}</h2>
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <a href="/" class="back-link">← Back to Dashboard</a>
+        <h1>{{ employee[1] }}</h1>
+        <div class="date-badge">
+            📅 Today: {{ today or "Date unavailable" }}
+        </div>
+    </div>
 
-    <!-- MARK ATTENDANCE -->
-    <div class="card p-4 mb-4 shadow-sm">
-        <h5>Mark Attendance for Today ({{ today or "not recieved"}})</h5>
+    <!-- MARK ATTENDANCE CARD -->
+    <div class="card">
+        <div class="card-title">✏️ Mark Attendance</div>
 
-        <form method="POST" class="mt-3">
-            <button name="status" value="present" class="btn btn-success me-2">
-                ✅ Present
+        <form method="POST" id="attendanceForm">
+
+            <div class="status-row">
+                <button type="button" class="status-btn present" onclick="selectStatus('present')">
+                    ✅ Present
+                </button>
+                <button type="button" class="status-btn absent" onclick="selectStatus('absent')">
+                    ❌ Absent
+                </button>
+            </div>
+
+            <input type="hidden" name="status" id="statusInput" value="">
+
+            <div id="timeFields" style="display:none;">
+                <div class="form-divider">
+                    <hr><span>Working Hours</span><hr>
+                </div>
+
+                <div class="time-grid">
+                    <div class="time-field">
+                        <label>Check-in Time</label>
+                        <input type="time" name="check_in_time" id="checkIn">
+                    </div>
+                    <div class="time-field">
+                        <label>Check-out Time</label>
+                        <input type="time" name="check_out_time" id="checkOut">
+                    </div>
+                </div>
+
+                <div class="time-note">
+                    ℹ️ Times are required for present employees. Check-out must be after check-in.
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary w-100"
+                style="display:none; border-radius:10px; padding:11px; font-weight:600; font-family:'Inter',sans-serif;">
+                Save Attendance
             </button>
 
-            <button name="status" value="absent" class="btn btn-danger">
-                ❌ Absent
-            </button>
-            <label>Check-in Time:</label>
-<input type="time" name="check_in_time" required>
-
-<label>Check-out Time:</label>
-<input type="time" name="check_out_time" required>
         </form>
     </div>
 
-    <!-- HISTORY -->
-    <div class="card p-4 shadow-sm">
+    <!-- ATTENDANCE HISTORY CARD -->
+    <div class="card">
+        <div class="card-title">📋 Attendance History</div>
 
-        <h5>Attendance History</h5>
-
-        <table class="table table-hover mt-3">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for r in records %}
-                <tr>
-                    <td>{{ r[0] }}</td>
-                    <td>
-                        {% if r[1] == 'present' %}
-                            <span class="badge bg-success">Present</span>
-                        {% else %}
-                            <span class="badge bg-danger">Absent</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+        {% if records %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td>{{ r[0] }}</td>
+                        <td>
+                            {% if r[1] == 'present' %}
+                                <span class="badge-present">● Present</span>
+                            {% else %}
+                                <span class="badge-absent">● Absent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r[2] %}
+                                <span class="time-chip">{{ r[2] }}</span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r[3] %}
+                                <span class="time-chip">{{ r[3] }}</span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            No attendance records found for this employee.
+        </div>
+        {% endif %}
     </div>
 
 </div>
 
-<!-- DARK MODE SCRIPT -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
+    document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark");
+        }
+    });
+
+    function toggleDark() {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     }
-});
 
-function toggleDark() {
-    document.body.classList.toggle("dark");
+    function selectStatus(status) {
+        document.getElementById('statusInput').value = status;
+        document.getElementById('submitBtn').style.display = 'block';
 
-    localStorage.setItem(
-        "theme",
-        document.body.classList.contains("dark") ? "dark" : "light"
-    );
-}
+        const timeFields = document.getElementById('timeFields');
+        const checkIn = document.getElementById('checkIn');
+        const checkOut = document.getElementById('checkOut');
+
+        if (status === 'present') {
+            timeFields.style.display = 'block';
+            checkIn.required = true;
+            checkOut.required = true;
+        } else {
+            timeFields.style.display = 'none';
+            checkIn.required = false;
+            checkOut.required = false;
+            checkIn.value = '';
+            checkOut.value = '';
+        }
+    }
+
+    document.getElementById('attendanceForm').addEventListener('submit', function (e) {
+        const status = document.getElementById('statusInput').value;
+
+        if (!status) {
+            e.preventDefault();
+            alert('Please select Present or Absent first.');
+            return;
+        }
+
+        if (status === 'present') {
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+
+            if (!checkIn || !checkOut) {
+                e.preventDefault();
+                alert('Please enter both check-in and check-out times.');
+                return;
+            }
+
+            if (checkOut <= checkIn) {
+                e.preventDefault();
+                alert('Check-out time must be after check-in time.');
+                return;
+            }
+        }
+    });
 </script>
 
 </body>

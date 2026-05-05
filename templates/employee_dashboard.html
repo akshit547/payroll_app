@@ -1,131 +1,411 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-body {
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.card {
-    border-radius: 15px;
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.btn {
-    border-radius: 10px;
-}
-
-.navbar {
-    border-radius: 0 0 15px 15px;
-}
-
-.table {
-    border-radius: 10px;
-    overflow: hidden;
-}
-</style>
-<style>
-/* LIGHT (default) */
-body {
-    background: #f8fafc;
-    color: #111827;
-}
-
-/* DARK MODE */
-body.dark {
-    background: #111827;
-    color: #f9fafb;
-}
-
-/* Cards */
-body.dark .card,
-body.dark .card-box,
-body.dark .table-box {
-    background: #1f2937;
-    color: white;
-}
-
-/* Table */
-body.dark table {
-    color: white;
-}
-
-/* Sidebar */
-body.dark .sidebar {
-    background: #020617;
-}
-
-/* Buttons */
-body.dark .btn {
-    border: none;
-}
-
-/* Topbar */
-body.dark .topbar {
-    background: #1f2937;
-}
-</style>
-    <title>My Dashboard</title>
-
+    <meta charset="UTF-8">
+    <title>My Dashboard — {{ employee[1] }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.08);
+            --radius: 14px;
+            --navbar-bg: #0f172a;
+        }
+
+        body.dark {
+            --bg: #060d1a;
+            --surface: #0f1c2e;
+            --surface2: #162035;
+            --border: #1e2d42;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-light: #1e3a5f;
+            --success-light: #052e16;
+            --danger-light: #2d0f0f;
+            --warning-light: #2d1f05;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+            --navbar-bg: #020810;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--navbar-bg) !important;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff !important;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand span { color: #3b82f6; }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+
+        .logout-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 7px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        /* LAYOUT */
+        .main-wrapper {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header .greeting {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.4px;
+            margin-bottom: 4px;
+        }
+
+        .page-header .month-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        /* SALARY HERO */
+        .salary-hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 28px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .salary-hero .left .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .salary-hero .left .amount {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .salary-hero .left .amount span {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .salary-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--warning-light);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: background 0.3s, border-color 0.3s, transform 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-2px); }
+
+        .stat-card .stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .stat-card.present .stat-icon { background: var(--success-light); }
+        .stat-card.absent .stat-icon  { background: var(--danger-light); }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-card .stat-value {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-card.present .stat-value { color: var(--success); }
+        .stat-card.absent .stat-value  { color: var(--danger); }
+
+        .stat-card .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ACTION BUTTONS */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .action-card .action-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .action-card.salary .action-icon  { background: var(--accent-light); }
+        .action-card.payslip .action-icon { background: var(--success-light); }
+
+        .action-card .action-text .action-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .action-card .action-text .action-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .salary-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .page-header h1 { font-size: 1.6rem; }
+            .actions-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container">
-    <span class="navbar-brand">Employee Dashboard</span>
-    <a href="/logout" class="btn btn-outline-light">Logout</a>
-  </div>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="/">Payroll<span>.</span></a>
+        <div class="nav-actions">
+            <button class="theme-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
 </nav>
 
-<div class="container mt-5 d-flex justify-content-center">
+<div class="main-wrapper">
 
-    <div class="card shadow-lg p-4 text-center" style="width: 400px;">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="greeting">👋 Welcome back,</div>
+        <h1>{{ employee[1] }}</h1>
+        <div class="month-badge">
+            📅 {{ month if month is defined else "This Month" }}
+        </div>
+    </div>
 
-        <h3 class="mb-3">{{ employee[1] }}</h3>
+    <!-- SALARY HERO -->
+    <div class="salary-hero">
+        <div class="left">
+            <div class="label">Monthly Salary (Gross)</div>
+            <div class="amount">
+                <span>₹</span>{{ employee[2] | int }}
+            </div>
+        </div>
+        <div class="salary-icon">💰</div>
+    </div>
 
-        <h5>💰 Salary: ₹{{ employee[2] }}</h5>
+    <!-- ATTENDANCE STATS -->
+    <div class="stats-grid">
+        <div class="stat-card present">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Present Days</div>
+            <div class="stat-value">{{ present }}</div>
+            <div class="stat-sub">This month</div>
+        </div>
+        <div class="stat-card absent">
+            <div class="stat-icon">❌</div>
+            <div class="stat-label">Absent Days</div>
+            <div class="stat-value">{{ absent }}</div>
+            <div class="stat-sub">This month</div>
+        </div>
+    </div>
 
-        <hr>
-
-        <p>✅ Present Days: <strong>{{ present }}</strong></p>
-        <p>❌ Absent Days: <strong>{{ absent }}</strong></p>
-
-        <a href="/calculate/{{ employee[0] }}" class="btn btn-dark mt-3">
-            View Salary
+    <!-- ACTIONS -->
+    <div class="actions-grid">
+        <a href="/calculate/{{ employee[0] }}" class="action-card salary">
+            <div class="action-icon">🧮</div>
+            <div class="action-text">
+                <div class="action-title">View Salary</div>
+                <div class="action-sub">Calculate net pay</div>
+            </div>
         </a>
-        <a href="/payslip/{{ employee[0] }}" class="btn btn-success mt-2">
-    Download Payslip
-</a>
-
+        <a href="/payslip/{{ employee[0] }}" class="action-card payslip">
+            <div class="action-icon">📄</div>
+            <div class="action-text">
+                <div class="action-title">Download Payslip</div>
+                <div class="action-sub">Get PDF for this month</div>
+            </div>
+        </a>
     </div>
 
 </div>
+
 <script>
-function toggleDark() {
-    document.body.classList.toggle("dark");
+    document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark");
+        }
+    });
 
-    if (document.body.classList.contains("dark")) {
-        localStorage.setItem("theme", "dark");
-    } else {
-        localStorage.setItem("theme", "light");
+    function toggleDark() {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     }
-}
-
-// Load saved theme
-window.onload = function () {
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-    }
-};
 </script>
+
 </body>
 </html>
