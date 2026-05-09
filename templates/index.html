@@ -271,6 +271,10 @@
 
         .stat-card:hover { transform: translateY(-2px); }
 
+        .stat-card.total   { border-top: 3px solid var(--accent); }
+        .stat-card.present { border-top: 3px solid var(--success); }
+        .stat-card.absent  { border-top: 3px solid var(--danger); }
+
         .stat-card .stat-icon {
             width: 40px;
             height: 40px;
@@ -366,7 +370,7 @@
         }
 
         td {
-            padding: 14px 18px;
+            padding: 16px 20px;
             font-size: 0.88rem;
             color: var(--text);
             border-bottom: 1px solid var(--border);
@@ -606,12 +610,6 @@
                                        title="Calculate Salary"
                                        data-bs-toggle="tooltip">
                                         <i class="bi bi-calculator"></i>
-                                    </a>
-                                    <a href="/payslip/{{ emp[0] }}"
-                                       class="action-btn btn-payslip"
-                                       title="Download Payslip"
-                                       data-bs-toggle="tooltip">
-                                        <i class="bi bi-file-earmark-text"></i>
                                     </a>
                                     <a href="/edit/{{ emp[0] }}"
                                        class="action-btn btn-edit"
